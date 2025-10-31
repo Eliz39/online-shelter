@@ -1,5 +1,5 @@
 function App() {
-  return <div>Online Shelter</div>;
+  return <div>Online Shelter</div>
 }
 
-export default App;
+export default App
