@@ -14,12 +14,15 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.4",
+    "@supabase/supabase-js": "^2.76.1",
     "@tanstack/react-router": "^1.133.27",
+    "@tanstack/react-router-devtools": "^1.133.36",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@tanstack/router-plugin": "^1.134.6",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
