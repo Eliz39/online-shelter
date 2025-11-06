@@ -1,34 +1,41 @@
 import { createFileRoute } from '@tanstack/react-router'
-import React, { useState } from 'react'
-import { supabase } from '../lib/supabaseClient.ts'
+import { useState } from 'react'
 import {
   Box,
   Button,
   Card,
   CardContent,
   Link as MuiLink,
+  MenuItem,
   TextField,
   Typography,
 } from '@mui/material'
+import { supabase } from '../lib/supabaseClient.ts'
 
-const LoginPage = () => {
+const SignUp = () => {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [role, setRole] = useState<'shelter' | 'adopter' | ''>('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: { name, role },
+      },
     })
 
     if (error) setError(error.message)
-    else alert('Logged in successfully!')
+    else alert('Account created successfully!')
+
     setLoading(false)
   }
 
@@ -50,21 +57,45 @@ const LoginPage = () => {
             variant="h4"
             sx={{ fontWeight: 700, textAlign: 'center', mb: 1 }}
           >
-            Welcome Back
+            Create Account
           </Typography>
           <Typography
             variant="body1"
             color="text.secondary"
             sx={{ textAlign: 'center', mb: 4 }}
           >
-            Sign in to your account to continue
+            Join our community as a shelter or adopter
           </Typography>
 
           <Box
             component="form"
-            onSubmit={e => void handleLogin(e)}
+            onSubmit={e => {
+              void handleSignup(e)
+            }}
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
+            <TextField
+              label="Full Name"
+              fullWidth
+              required
+              value={name}
+              onChange={e => setName(e.target.value)}
+              variant="outlined"
+            />
+
+            <TextField
+              select
+              label="Role"
+              fullWidth
+              required
+              value={role}
+              onChange={e => setRole(e.target.value as 'shelter' | 'adopter')}
+              variant="outlined"
+            >
+              <MenuItem value="shelter">Shelter</MenuItem>
+              <MenuItem value="adopter">Adopter</MenuItem>
+            </TextField>
+
             <TextField
               label="Email Address"
               type="email"
@@ -90,16 +121,17 @@ const LoginPage = () => {
                 {error}
               </Typography>
             )}
+
             <Button
               type="submit"
               variant="contained"
               color="primary"
               size="large"
-              loading={loading}
+              disabled={loading}
               fullWidth
               sx={{ py: 1.5 }}
             >
-              Sign In
+              {loading ? 'Signing up...' : 'Sign Up'}
             </Button>
 
             <Typography
@@ -107,13 +139,13 @@ const LoginPage = () => {
               color="text.secondary"
               sx={{ textAlign: 'center' }}
             >
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <MuiLink
-                href="/signup"
+                href="/login"
                 underline="hover"
                 sx={{ color: 'primary.main', fontWeight: 600 }}
               >
-                Sign up
+                Sign in
               </MuiLink>
             </Typography>
           </Box>
@@ -123,6 +155,6 @@ const LoginPage = () => {
   )
 }
 
-export const Route = createFileRoute('/login')({
-  component: LoginPage,
+export const Route = createFileRoute('/signup')({
+  component: SignUp,
 })
