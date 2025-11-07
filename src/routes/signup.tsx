@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
   Button,
@@ -10,19 +11,20 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { supabase } from '../lib/supabaseClient.ts'
+import { InfoToast } from '../components/InfoToast.tsx'
 
 const SignUp = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'shelter' | 'adopter' | ''>('')
-  const [error, setError] = useState('')
+  const [role, setRole] = useState<'shelter' | 'adopter' | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setErrorMessage('')
     setLoading(true)
 
     const { error } = await supabase.auth.signUp({
@@ -33,8 +35,8 @@ const SignUp = () => {
       },
     })
 
-    if (error) setError(error.message)
-    else alert('Account created successfully!')
+    if (error) setErrorMessage(error.message)
+    else setSuccessMessage('Account created successfully!')
 
     setLoading(false)
   }
@@ -116,12 +118,6 @@ const SignUp = () => {
               variant="outlined"
             />
 
-            {error !== '' && (
-              <Typography variant="body1" color="error">
-                {error}
-              </Typography>
-            )}
-
             <Button
               type="submit"
               variant="contained"
@@ -151,6 +147,15 @@ const SignUp = () => {
           </Box>
         </CardContent>
       </Card>
+      <InfoToast
+        isOpen={Boolean(errorMessage || successMessage)}
+        close={() => {
+          setErrorMessage('')
+          setSuccessMessage('')
+        }}
+        severity={errorMessage !== '' ? 'error' : 'success'}
+        text={errorMessage || successMessage}
+      />
     </Box>
   )
 }

@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
 import React, { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
@@ -10,16 +10,18 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { InfoToast } from '../components/InfoToast.tsx'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setErrorMessage('')
     setLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -27,8 +29,8 @@ const LoginPage = () => {
       password,
     })
 
-    if (error) setError(error.message)
-    else alert('Logged in successfully!')
+    if (error) setErrorMessage(error.message)
+    else setSuccessMessage('Logged in successfully!')
     setLoading(false)
   }
 
@@ -85,11 +87,6 @@ const LoginPage = () => {
               variant="outlined"
             />
 
-            {error !== '' && (
-              <Typography variant="body1" color="error">
-                {error}
-              </Typography>
-            )}
             <Button
               type="submit"
               variant="contained"
@@ -119,6 +116,15 @@ const LoginPage = () => {
           </Box>
         </CardContent>
       </Card>
+      <InfoToast
+        isOpen={Boolean(errorMessage || successMessage)}
+        close={() => {
+          setErrorMessage('')
+          setSuccessMessage('')
+        }}
+        severity={errorMessage !== '' ? 'error' : 'success'}
+        text={errorMessage || successMessage}
+      />
     </Box>
   )
 }
