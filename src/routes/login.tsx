@@ -1,5 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type LoginFormInputs,
+  loginSchema,
+} from '../lib/validationSchemas/loginSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
@@ -13,25 +19,42 @@ import {
 import { InfoToast } from '../components/InfoToast.tsx'
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMessage('')
-    setLoading(true)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    resolver: zodResolver(loginSchema),
+  })
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+  const handleLogin = async (data: LoginFormInputs) => {
+    try {
+      setErrorMessage('')
+      setSuccessMessage('')
+      setLoading(true)
 
-    if (error) setErrorMessage(error.message)
-    else setSuccessMessage('Logged in successfully!')
-    setLoading(false)
+      const { error } = await supabase.auth.signInWithPassword(data)
+
+      if (error) {
+        setErrorMessage(error.message)
+        return
+      }
+
+      setSuccessMessage('Logged in successfully!')
+    } catch (err) {
+      console.error(err)
+      setErrorMessage('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -64,27 +87,40 @@ const LoginPage = () => {
 
           <Box
             component="form"
-            onSubmit={e => void handleLogin(e)}
+            noValidate
+            onSubmit={handleSubmit(handleLogin)}
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
-            <TextField
-              label="Email Address"
-              type="email"
-              fullWidth
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              variant="outlined"
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              )}
             />
 
-            <TextField
-              label="Password"
-              type="password"
-              fullWidth
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              variant="outlined"
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                />
+              )}
             />
 
             <Button

@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type SignupFormInputs,
+  signupSchema,
+} from '../lib/validationSchemas/signupSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
@@ -14,31 +20,45 @@ import {
 import { InfoToast } from '../components/InfoToast.tsx'
 
 const SignUp = () => {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'shelter' | 'adopter' | undefined>(undefined)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMessage('')
-    setLoading(true)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormInputs>({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      role: undefined,
+    },
+    resolver: zodResolver(signupSchema),
+  })
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, role },
-      },
-    })
+  const handleSignup = async (data: SignupFormInputs) => {
+    try {
+      setErrorMessage('')
+      setLoading(true)
 
-    if (error) setErrorMessage(error.message)
-    else setSuccessMessage('Account created successfully!')
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { name: data.name, role: data.role },
+        },
+      })
 
-    setLoading(false)
+      if (error) setErrorMessage(error.message)
+      else setSuccessMessage('Account created successfully!')
+    } catch (err) {
+      console.error(err)
+      setErrorMessage('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -71,51 +91,74 @@ const SignUp = () => {
 
           <Box
             component="form"
-            onSubmit={e => {
-              void handleSignup(e)
-            }}
+            noValidate
+            onSubmit={handleSubmit(handleSignup)}
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
-            <TextField
-              label="Full Name"
-              fullWidth
-              required
-              value={name}
-              onChange={e => setName(e.target.value)}
-              variant="outlined"
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Full Name"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              )}
             />
 
-            <TextField
-              select
-              label="Role"
-              fullWidth
-              required
-              value={role}
-              onChange={e => setRole(e.target.value as 'shelter' | 'adopter')}
-              variant="outlined"
-            >
-              <MenuItem value="shelter">Shelter</MenuItem>
-              <MenuItem value="adopter">Adopter</MenuItem>
-            </TextField>
-
-            <TextField
-              label="Email Address"
-              type="email"
-              fullWidth
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              variant="outlined"
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Role"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.role}
+                  helperText={errors.role?.message}
+                >
+                  <MenuItem value="shelter">Shelter</MenuItem>
+                  <MenuItem value="adopter">Adopter</MenuItem>
+                </TextField>
+              )}
             />
 
-            <TextField
-              label="Password"
-              type="password"
-              fullWidth
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              variant="outlined"
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              )}
+            />
+
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                />
+              )}
             />
 
             <Button
