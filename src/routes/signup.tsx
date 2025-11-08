@@ -92,7 +92,7 @@ const SignUp = () => {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit(handleSignup)}
+            onSubmit={e => void handleSubmit(handleSignup)(e)}
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
             <Controller
