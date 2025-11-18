@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Stack } from '@mui/material'
+import { Loading } from '../components/Loading.tsx'
 import { supabase } from '../lib/supabaseClient.ts'
 
 export const Route = createFileRoute('/')({
   loader: () => supabase.from('animals').select(),
   component: Index,
-  pendingComponent: () => <div>Animals Loading...</div>,
+  pendingComponent: () => <Loading />,
   pendingMs: 0,
 })
 
