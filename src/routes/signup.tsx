@@ -111,7 +111,7 @@ const SignUp = () => {
             />
 
             <Controller
-              name="name"
+              name="role"
               control={control}
               render={({ field }) => (
                 <TextField
