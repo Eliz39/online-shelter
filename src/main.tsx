@@ -1,17 +1,9 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ThemeProvider } from '@mui/material'
-import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
+import { AppRouter } from './AppRouter.tsx'
+import { AuthProvider } from './context/AuthProvider.tsx'
 import { theme } from './lib/theme.ts'
-
-const router = createRouter({ routeTree })
-
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
 
 const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
@@ -19,7 +11,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ThemeProvider theme={theme}>
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <AppRouter />
+        </AuthProvider>
       </ThemeProvider>
     </StrictMode>
   )
