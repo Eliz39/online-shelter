@@ -64,7 +64,7 @@ const SignUp = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: 'calc(100dvh - 64px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -77,7 +77,7 @@ const SignUp = () => {
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           <Typography
             variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 1 }}
+            sx={{ fontWeight: 500, textAlign: 'center', mb: 1 }}
           >
             Create Account
           </Typography>
