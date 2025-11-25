@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  type SignupFormInputs,
-  signupSchema,
-} from '../lib/validationSchemas/signupSchema.ts'
+import { type SignupFormInputs, signupSchema } from '../schemas/signupSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
