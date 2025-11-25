@@ -5,6 +5,10 @@ export const router = createRouter({
   routeTree,
   context: {
     // We'll be passing down the auth state from within a React component
-    auth: undefined!,
+    auth: {
+      user: null,
+      session: null,
+      loading: true,
+    },
   },
 })
