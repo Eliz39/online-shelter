@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  type SignupFormInputs,
-  signupSchema,
-} from '../lib/validationSchemas/signupSchema.ts'
+import { type SignupFormInputs, signupSchema } from '../schemas/signupSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
 import {
   Box,
@@ -64,12 +61,9 @@ const SignUp = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background:
-          'linear-gradient(135deg, rgba(133, 216, 57, 0.1) 0%, rgba(237, 84, 129, 0.1) 100%)',
         py: 4,
       }}
     >
@@ -77,7 +71,7 @@ const SignUp = () => {
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           <Typography
             variant="h4"
-            sx={{ fontWeight: 700, textAlign: 'center', mb: 1 }}
+            sx={{ fontWeight: 500, textAlign: 'center', mb: 1 }}
           >
             Create Account
           </Typography>
