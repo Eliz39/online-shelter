@@ -31,6 +31,10 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'error',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
     },
   },
 ])

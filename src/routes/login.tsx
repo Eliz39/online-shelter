@@ -4,15 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginFormInputs, loginSchema } from '../schemas/loginSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Link as MuiLink,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Card, CardContent, Link as MuiLink, TextField, Typography, } from '@mui/material'
 import { InfoToast } from '../components/InfoToast.tsx'
 
 const LoginPage = () => {
@@ -57,12 +49,9 @@ const LoginPage = () => {
   return (
     <Box
       sx={{
-        minHeight: 'calc(100dvh - 64px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background:
-          'linear-gradient(135deg, rgba(133, 216, 57, 0.1) 0%, rgba(237, 84, 129, 0.1) 100%)',
         py: 4,
       }}
     >
