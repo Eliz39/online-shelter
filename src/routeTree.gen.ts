@@ -9,20 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PetsRouteImport } from './routes/pets'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthProfileRouteImport } from './routes/_auth.profile'
 
+const VolunteerRoute = VolunteerRouteImport.update({
+  id: '/volunteer',
+  path: '/volunteer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PetsRoute = PetsRouteImport.update({
+  id: '/pets',
+  path: '/pets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -42,41 +60,83 @@ const AuthProfileRoute = AuthProfileRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
+  '/pets': typeof PetsRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
+  '/pets': typeof PetsRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/about': typeof AboutRoute
   '/login': typeof LoginRoute
+  '/pets': typeof PetsRoute
   '/signup': typeof SignupRoute
+  '/volunteer': typeof VolunteerRoute
   '/_auth/profile': typeof AuthProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/profile'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/login'
+    | '/pets'
+    | '/signup'
+    | '/volunteer'
+    | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/profile'
-  id: '__root__' | '/' | '/_auth' | '/login' | '/signup' | '/_auth/profile'
+  to:
+    | '/'
+    | '/about'
+    | '/login'
+    | '/pets'
+    | '/signup'
+    | '/volunteer'
+    | '/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/about'
+    | '/login'
+    | '/pets'
+    | '/signup'
+    | '/volunteer'
+    | '/_auth/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
+  PetsRoute: typeof PetsRoute
   SignupRoute: typeof SignupRoute
+  VolunteerRoute: typeof VolunteerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/volunteer': {
+      id: '/volunteer'
+      path: '/volunteer'
+      fullPath: '/volunteer'
+      preLoaderRoute: typeof VolunteerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -84,11 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pets': {
+      id: '/pets'
+      path: '/pets'
+      fullPath: '/pets'
+      preLoaderRoute: typeof PetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -128,8 +202,11 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
+  PetsRoute: PetsRoute,
   SignupRoute: SignupRoute,
+  VolunteerRoute: VolunteerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

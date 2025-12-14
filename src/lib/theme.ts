@@ -8,5 +8,11 @@ export const theme = createTheme({
     secondary: {
       main: '#ed5481',
     },
+    background: {
+      default: '#fef6e7',
+    },
+  },
+  typography: {
+    fontFamily: '"Fredoka", sans-serif',
   },
 })
