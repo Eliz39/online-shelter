@@ -11,6 +11,7 @@ export const router = createRouter({
       user: null,
       session: null,
       loading: true,
+      handleLogout: async () => {},
     },
   },
 })

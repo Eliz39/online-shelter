@@ -1,16 +1,24 @@
-import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginFormInputs, loginSchema } from '../schemas/loginSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
-import { Box, Button, Card, CardContent, Link as MuiLink, TextField, Typography, } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Link as MuiLink,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { InfoToast } from '../components/InfoToast.tsx'
+import { useAuth } from '../context/useAuth.tsx'
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
 
   const {
     control,
@@ -24,10 +32,22 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   })
 
+  const navigate = useNavigate()
+  const { redirect } = useSearch({ from: '/login' })
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      navigate({
+        to: redirect ?? '/profile',
+        replace: true,
+      })
+    }
+  }, [user, redirect, navigate])
+
   const handleLogin = async (data: LoginFormInputs) => {
     try {
       setErrorMessage('')
-      setSuccessMessage('')
       setLoading(true)
 
       const { error } = await supabase.auth.signInWithPassword(data)
@@ -36,8 +56,6 @@ const LoginPage = () => {
         setErrorMessage(error.message)
         return
       }
-
-      setSuccessMessage('Logged in successfully!')
     } catch (err) {
       console.error(err)
       setErrorMessage('Something went wrong. Please try again.')
@@ -139,13 +157,12 @@ const LoginPage = () => {
         </CardContent>
       </Card>
       <InfoToast
-        isOpen={Boolean(errorMessage || successMessage)}
+        isOpen={Boolean(errorMessage)}
         close={() => {
           setErrorMessage('')
-          setSuccessMessage('')
         }}
         severity={errorMessage !== '' ? 'error' : 'success'}
-        text={errorMessage || successMessage}
+        text={errorMessage}
       />
     </Box>
   )
