@@ -13,8 +13,9 @@ import {
   ListItemText,
   Toolbar,
 } from '@mui/material'
-import { Close, Login, Menu as MenuIcon } from '@mui/icons-material'
+import { Close, Login, Logout, Menu as MenuIcon } from '@mui/icons-material'
 import Logo from '../assets/logo.svg?react'
+import { useAuth } from '../context/useAuth.tsx'
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -26,7 +27,13 @@ const navItems = [
 export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouterState()
+  const { user, handleLogout } = useAuth()
   const currentPath = router.location.pathname
+
+  const logout = async () => {
+    setMobileMenuOpen(false)
+    await handleLogout()
+  }
 
   return (
     <AppBar
@@ -84,16 +91,28 @@ export const Navbar = () => {
                 {item.label}
               </Button>
             ))}
-            <Button
-              component={Link}
-              to="/login"
-              variant="outlined"
-              color="primary"
-              startIcon={<Login />}
-              sx={{ ml: 2 }}
-            >
-              Login
-            </Button>
+            {user === null ? (
+              <Button
+                component={Link}
+                to="/login"
+                variant="outlined"
+                color="primary"
+                startIcon={<Login />}
+                sx={{ ml: 2 }}
+              >
+                Login
+              </Button>
+            ) : (
+              <Button
+                onClick={logout}
+                variant="outlined"
+                color="primary"
+                startIcon={<Logout />}
+                sx={{ ml: 2 }}
+              >
+                Logout
+              </Button>
+            )}
           </Box>
 
           <IconButton
@@ -142,20 +161,38 @@ export const Navbar = () => {
               </ListItem>
             ))}
             <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Login sx={{ mr: 2, color: 'primary.main' }} />
-                <ListItemText
-                  primary="Login"
-                  primaryTypographyProps={{
-                    fontWeight: 600,
-                    color: 'primary.main',
-                  }}
-                />
-              </ListItemButton>
+              {user === null ? (
+                <ListItemButton
+                  component={Link}
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Login sx={{ mr: 2, color: 'primary.main' }} />
+                  <ListItemText
+                    primary="Login"
+                    slotProps={{
+                      primary: {
+                        fontWeight: 600,
+                        color: 'primary.main',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              ) : (
+                <ListItemButton component={Button} onClick={logout}>
+                  <Logout sx={{ mr: 2, color: 'primary.main' }} />
+                  <ListItemText
+                    primary="Logout"
+                    slotProps={{
+                      primary: {
+                        fontWeight: 600,
+                        color: 'primary.main',
+                        textTransform: 'none',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              )}
             </ListItem>
           </List>
         </Box>
