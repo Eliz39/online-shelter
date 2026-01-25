@@ -35,6 +35,8 @@ export default defineConfig([
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      'react-x/no-nested-component-definitions': 'off',
     },
   },
 ])
