@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginFormInputs, loginSchema } from '../schemas/loginSchema.ts'
@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material'
 import { InfoToast } from '../components/InfoToast.tsx'
-import { useAuth } from '../context/useAuth.tsx'
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false)
@@ -33,24 +32,21 @@ const LoginPage = () => {
   })
 
   const navigate = useNavigate()
-  const { redirect } = useSearch({ from: '/login' })
-  const { user } = useAuth()
-
-  useEffect(() => {
-    if (user) {
-      navigate({
-        to: redirect ?? '/profile',
-        replace: true,
-      })
-    }
-  }, [user, redirect, navigate])
 
   const handleLogin = async (data: LoginFormInputs) => {
     try {
       setErrorMessage('')
       setLoading(true)
 
-      const { error } = await supabase.auth.signInWithPassword(data)
+      const { error, data: userData } =
+        await supabase.auth.signInWithPassword(data)
+
+      if (userData) {
+        await navigate({
+          to: '/profile',
+          replace: true,
+        })
+      }
 
       if (error) {
         setErrorMessage(error.message)

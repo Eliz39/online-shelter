@@ -159,7 +159,7 @@ export const getFavoriteAnimals = async (): Promise<string[]> => {
   try {
     const { data, error } = await supabase
       .from('favorite_animals')
-      .select('animal')
+      .select<string>('id')
 
     if (error) {
       if (error.code === 'PGRST116') {

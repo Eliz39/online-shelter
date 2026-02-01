@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import {
   Alert,
   Box,
@@ -29,8 +29,6 @@ import { AVAILABLE_ANIMALS, getAnimalsByIds } from '../constants/animals'
 
 const Profile = () => {
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const { redirect } = useSearch({ from: '/_auth/profile' })
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [editFormOpen, setEditFormOpen] = useState(false)
@@ -44,15 +42,6 @@ const Profile = () => {
     user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
   const phoneNumber = user?.user_metadata?.phoneNumber || ''
   const userEmail = user?.email || ''
-
-  useEffect(() => {
-    if (!user) {
-      navigate({
-        to: '/login',
-        replace: true,
-      })
-    }
-  }, [user, redirect, navigate])
 
   useEffect(() => {
     const loadFavoriteAnimals = async () => {
