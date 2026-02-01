@@ -16,11 +16,13 @@ import {
   useTheme,
 } from '@mui/material'
 import { Email, Favorite, LocationOn, Phone } from '@mui/icons-material'
+import { useAuth } from '../context/useAuth.tsx'
 import type { PetType } from '../types/PetType'
 import { getPetById, PetServiceError } from '../services/petService'
 import { BackButton } from '../components/BackButton.tsx'
 
 const PetDetail = () => {
+  const { user } = useAuth()
   const { petId } = useParams({ from: '/pets/$petId' })
   const navigate = useNavigate()
   const theme = useTheme()
@@ -184,21 +186,23 @@ const PetDetail = () => {
                   gap: 1,
                 }}
               >
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    minWidth: 'auto',
-                    p: 1,
-                    bgcolor: 'rgba(255, 255, 255, 0.9)',
-                    color: 'text.primary',
-                    '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 1)',
-                    },
-                  }}
-                >
-                  <Favorite />
-                </Button>
+                {user ? (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      minWidth: 'auto',
+                      p: 1,
+                      bgcolor: 'rgba(255, 255, 255, 0.9)',
+                      color: 'text.primary',
+                      '&:hover': {
+                        bgcolor: 'rgba(255, 255, 255, 1)',
+                      },
+                    }}
+                  >
+                    <Favorite />
+                  </Button>
+                ) : null}
               </Box>
             </Paper>
 
@@ -330,19 +334,6 @@ const PetDetail = () => {
                   }}
                 >
                   {isAvailable ? `Adopt ${pet.name}` : `${pet.status}`}
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    flex: isMobile ? 1 : 0,
-                    py: 1.5,
-                    fontWeight: 600,
-                    borderRadius: 2,
-                    minWidth: isMobile ? 'auto' : 140,
-                  }}
-                >
-                  Contact Us
                 </Button>
               </Box>
             </Box>
