@@ -1,22 +1,57 @@
+import { useState, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Stack } from '@mui/material'
-import { Loading } from '../components/Loading.tsx'
-import { supabase } from '../lib/supabaseClient.ts'
 import { Hero } from '../components/sections/Hero.tsx'
+import { PetCarousel } from '../components/PetCarousel.tsx'
+import { getAvailablePets, PetServiceError } from '../services/petService'
+import type { PetType } from '../types/PetType'
 
 export const Route = createFileRoute('/')({
-  loader: () => supabase.from('animals').select(),
   component: Index,
-  pendingComponent: () => <Loading />,
-  pendingMs: 0,
 })
 
 function Index() {
-  const data = Route.useLoaderData()
-  console.log({ data })
+  const [pets, setPets] = useState<PetType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
+
+  useEffect(() => {
+    const loadAvailablePets = async () => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const availablePets = await getAvailablePets(10)
+        setPets(availablePets)
+        setRetryCount(0)
+      } catch (err) {
+        console.error('Failed to load available pets:', err)
+        const errorMessage = err instanceof PetServiceError
+          ? err.message
+          : 'Failed to load available pets. Please try again.'
+        setError(errorMessage)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadAvailablePets()
+  }, [retryCount])
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1)
+  }
+
   return (
-    <Stack padding={2}>
+    <Stack>
       <Hero />
+      <PetCarousel
+        pets={pets}
+        loading={loading}
+        error={error}
+        onRetry={handleRetry}
+      />
     </Stack>
   )
 }

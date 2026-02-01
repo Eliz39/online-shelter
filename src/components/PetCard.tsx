@@ -76,9 +76,9 @@ export const PetCard = ({ pet }: PetCardProps) => {
           }}
         />
         <CardContent
-          sx={{ 
-            flexGrow: 1, 
-            display: 'flex', 
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
             flexDirection: 'column',
             p: 2,
             '&:last-child': { pb: 2 }
@@ -93,9 +93,9 @@ export const PetCard = ({ pet }: PetCardProps) => {
               gap: 1,
             }}
           >
-            <Typography 
-              variant="h5" 
-              sx={{ 
+            <Typography
+              variant="h5"
+              sx={{
                 fontWeight: 700,
                 color: 'text.primary',
                 lineHeight: 1.2,
@@ -140,8 +140,8 @@ export const PetCard = ({ pet }: PetCardProps) => {
           <Typography
             variant="body2"
             color="text.secondary"
-            sx={{ 
-              mb: 2, 
+            sx={{
+              mb: 2,
               flexGrow: 1,
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -153,9 +153,9 @@ export const PetCard = ({ pet }: PetCardProps) => {
             {pet.description}
           </Typography>
 
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             fullWidth
             onClick={handleMeetClick}
             sx={{
