@@ -11,11 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as PetsRouteImport } from './routes/pets'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PetsIndexRouteImport } from './routes/pets.index'
 import { Route as PetsPetIdRouteImport } from './routes/pets.$petId'
 import { Route as AuthProfileRouteImport } from './routes/_auth.profile'
 
@@ -27,11 +27,6 @@ const VolunteerRoute = VolunteerRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PetsRoute = PetsRouteImport.update({
-  id: '/pets',
-  path: '/pets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -53,10 +48,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PetsIndexRoute = PetsIndexRouteImport.update({
+  id: '/pets/',
+  path: '/pets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PetsPetIdRoute = PetsPetIdRouteImport.update({
-  id: '/$petId',
-  path: '/$petId',
-  getParentRoute: () => PetsRoute,
+  id: '/pets/$petId',
+  path: '/pets/$petId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthProfileRoute = AuthProfileRouteImport.update({
   id: '/profile',
@@ -68,21 +68,21 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pets': typeof PetsRouteWithChildren
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
+  '/pets': typeof PetsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pets': typeof PetsRouteWithChildren
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
+  '/pets': typeof PetsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -90,11 +90,11 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pets': typeof PetsRouteWithChildren
   '/signup': typeof SignupRoute
   '/volunteer': typeof VolunteerRoute
   '/_auth/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
+  '/pets/': typeof PetsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,32 +102,32 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
-    | '/pets'
     | '/signup'
     | '/volunteer'
     | '/profile'
     | '/pets/$petId'
+    | '/pets'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/login'
-    | '/pets'
     | '/signup'
     | '/volunteer'
     | '/profile'
     | '/pets/$petId'
+    | '/pets'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/about'
     | '/login'
-    | '/pets'
     | '/signup'
     | '/volunteer'
     | '/_auth/profile'
     | '/pets/$petId'
+    | '/pets/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,9 +135,10 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
-  PetsRoute: typeof PetsRouteWithChildren
   SignupRoute: typeof SignupRoute
   VolunteerRoute: typeof VolunteerRoute
+  PetsPetIdRoute: typeof PetsPetIdRoute
+  PetsIndexRoute: typeof PetsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -154,13 +155,6 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pets': {
-      id: '/pets'
-      path: '/pets'
-      fullPath: '/pets'
-      preLoaderRoute: typeof PetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -191,12 +185,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pets/': {
+      id: '/pets/'
+      path: '/pets'
+      fullPath: '/pets'
+      preLoaderRoute: typeof PetsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pets/$petId': {
       id: '/pets/$petId'
-      path: '/$petId'
+      path: '/pets/$petId'
       fullPath: '/pets/$petId'
       preLoaderRoute: typeof PetsPetIdRouteImport
-      parentRoute: typeof PetsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/profile': {
       id: '/_auth/profile'
@@ -218,24 +219,15 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
-interface PetsRouteChildren {
-  PetsPetIdRoute: typeof PetsPetIdRoute
-}
-
-const PetsRouteChildren: PetsRouteChildren = {
-  PetsPetIdRoute: PetsPetIdRoute,
-}
-
-const PetsRouteWithChildren = PetsRoute._addFileChildren(PetsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
-  PetsRoute: PetsRouteWithChildren,
   SignupRoute: SignupRoute,
   VolunteerRoute: VolunteerRoute,
+  PetsPetIdRoute: PetsPetIdRoute,
+  PetsIndexRoute: PetsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
