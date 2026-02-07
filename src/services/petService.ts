@@ -155,3 +155,44 @@ export const getFilteredPets = async (filters: {
     )
   }
 }
+
+/**
+ * Get available pets for home page display
+ * @param limit - Number of pets to fetch (default: 10)
+ * @returns Promise<PetType[]>
+ */
+export const getAvailablePets = async (limit: number = 10): Promise<PetType[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('animals')
+      .select('*')
+      .eq('status', 'available')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) {
+      console.error('Supabase error fetching available pets:', error)
+      throw new PetServiceError(
+        'Failed to fetch available pets from database',
+        error.code || 'FETCH_ERROR',
+        error
+      )
+    }
+
+    if (!data) {
+      return []
+    }
+
+    return data
+  } catch (error) {
+    if (error instanceof PetServiceError) {
+      throw error
+    }
+    console.error('Unexpected error fetching available pets:', error)
+    throw new PetServiceError(
+      'Unexpected error while fetching available pets',
+      'UNKNOWN_ERROR',
+      error
+    )
+  }
+}

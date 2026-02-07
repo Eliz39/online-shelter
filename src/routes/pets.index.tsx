@@ -39,22 +39,22 @@ const Pets = () => {
     const loadPets = async () => {
       setLoading(true)
       setError(null)
-      
+
       try {
         const petsData = await getAllPets()
         setPets(petsData)
         setRetryCount(0)
       } catch (err) {
         console.error('Failed to load pets:', err)
-        const errorMessage = err instanceof PetServiceError 
-          ? err.message 
+        const errorMessage = err instanceof PetServiceError
+          ? err.message
           : 'Failed to load pets. Please try again.'
         setError(errorMessage)
       } finally {
         setLoading(false)
       }
     }
-    
+
     loadPets()
   }, [retryCount])
 
@@ -64,15 +64,15 @@ const Pets = () => {
 
   const filteredPets = pets.filter(pet => {
     const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pet.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pet.color.toLowerCase().includes(searchTerm.toLowerCase())
-    
+      pet.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pet.color.toLowerCase().includes(searchTerm.toLowerCase())
+
     const matchesSpecies = speciesFilter === 'All' || pet.species === speciesFilter
     const matchesSize = sizeFilter === 'All' || pet.size === sizeFilter
-    const matchesAge = ageFilter === 'All' || 
-                      (ageFilter === 'Young' && pet.age <= 2) ||
-                      (ageFilter === 'Adult' && pet.age > 2 && pet.age <= 7) ||
-                      (ageFilter === 'Senior' && pet.age > 7)
+    const matchesAge = ageFilter === 'All' ||
+      (ageFilter === 'Young' && pet.age <= 2) ||
+      (ageFilter === 'Adult' && pet.age > 2 && pet.age <= 7) ||
+      (ageFilter === 'Senior' && pet.age > 7)
 
     return matchesSearch && matchesSpecies && matchesSize && matchesAge
   })
@@ -82,10 +82,10 @@ const Pets = () => {
   }
 
   const LoadingSkeleton = () => (
-    <Box sx={{ 
-      display: 'grid', 
+    <Box sx={{
+      display: 'grid',
       gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-      gap: 3 
+      gap: 3
     }}>
       {Array.from({ length: 6 }).map((_, index) => (
         <Paper
@@ -189,11 +189,11 @@ const Pets = () => {
                   Search & Filter
                 </Typography>
               </Box>
-              
-              <Box sx={{ 
-                display: 'grid', 
+
+              <Box sx={{
+                display: 'grid',
                 gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr' },
-                gap: 2 
+                gap: 2
               }}>
                 <TextField
                   fullWidth
@@ -329,7 +329,7 @@ const Pets = () => {
                 No pets found
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {pets.length === 0 
+                {pets.length === 0
                   ? "No pets are currently available for adoption."
                   : "Try adjusting your search criteria or filters to find more pets."
                 }
@@ -337,10 +337,10 @@ const Pets = () => {
             </Paper>
           ) : (
             <Fade in timeout={700}>
-              <Box sx={{ 
-                display: 'grid', 
+              <Box sx={{
+                display: 'grid',
                 gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-                gap: 3 
+                gap: 3
               }}>
                 {filteredPets.map((pet, index) => (
                   <Fade in timeout={500 + index * 100} key={pet.id}>
@@ -358,4 +358,4 @@ const Pets = () => {
   )
 }
 
-export const Route = createFileRoute('/pets')({ component: Pets })
+export const Route = createFileRoute('/pets/')({ component: Pets })
