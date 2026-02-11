@@ -15,4 +15,13 @@ export const theme = createTheme({
   typography: {
     fontFamily: '"Fredoka", sans-serif',
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        html: {
+          scrollBehavior: 'smooth',
+        },
+      },
+    },
+  },
 })
