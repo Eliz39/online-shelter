@@ -1,4 +1,5 @@
-import { Box, Button, Link, Stack, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
+import { Link } from '@tanstack/react-router'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import heroImg from '../../assets/hero-cat.jpg'
 
@@ -68,7 +69,7 @@ export const Hero = () => {
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Button
               component={Link}
-              href="/pets"
+              to="/pets"
               size="large"
               sx={{
                 backgroundColor: 'primary.main',
@@ -91,7 +92,7 @@ export const Hero = () => {
 
             <Button
               component={Link}
-              href="/about"
+              to="/about"
               size="large"
               variant="outlined"
               sx={{

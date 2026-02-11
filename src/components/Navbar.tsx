@@ -21,7 +21,6 @@ const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Pets', href: '/pets' },
-  { label: 'Volunteer', href: '/volunteer' },
 ]
 
 export const Navbar = () => {

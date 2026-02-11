@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
@@ -19,11 +18,6 @@ import { Route as PetsIndexRouteImport } from './routes/pets.index'
 import { Route as PetsPetIdRouteImport } from './routes/pets.$petId'
 import { Route as AuthProfileRouteImport } from './routes/_auth.profile'
 
-const VolunteerRoute = VolunteerRouteImport.update({
-  id: '/volunteer',
-  path: '/volunteer',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -69,7 +63,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
   '/pets': typeof PetsIndexRoute
@@ -79,7 +72,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/volunteer': typeof VolunteerRoute
   '/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
   '/pets': typeof PetsIndexRoute
@@ -91,7 +83,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/volunteer': typeof VolunteerRoute
   '/_auth/profile': typeof AuthProfileRoute
   '/pets/$petId': typeof PetsPetIdRoute
   '/pets/': typeof PetsIndexRoute
@@ -103,7 +94,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/signup'
-    | '/volunteer'
     | '/profile'
     | '/pets/$petId'
     | '/pets'
@@ -113,7 +103,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/signup'
-    | '/volunteer'
     | '/profile'
     | '/pets/$petId'
     | '/pets'
@@ -124,7 +113,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/signup'
-    | '/volunteer'
     | '/_auth/profile'
     | '/pets/$petId'
     | '/pets/'
@@ -136,20 +124,12 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  VolunteerRoute: typeof VolunteerRoute
   PetsPetIdRoute: typeof PetsPetIdRoute
   PetsIndexRoute: typeof PetsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/volunteer': {
-      id: '/volunteer'
-      path: '/volunteer'
-      fullPath: '/volunteer'
-      preLoaderRoute: typeof VolunteerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -225,7 +205,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  VolunteerRoute: VolunteerRoute,
   PetsPetIdRoute: PetsPetIdRoute,
   PetsIndexRoute: PetsIndexRoute,
 }
