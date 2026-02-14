@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type SignupFormInputs, signupSchema } from '../schemas/signupSchema.ts'
@@ -9,17 +9,23 @@ import {
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Link as MuiLink,
   MenuItem,
   TextField,
   Typography,
 } from '@mui/material'
+import { Login } from '@mui/icons-material'
 import { InfoToast } from '../components/InfoToast.tsx'
 
 const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const {
     control,
@@ -48,14 +54,21 @@ const SignUp = () => {
         },
       })
 
-      if (error) setErrorMessage(error.message)
-      else setSuccessMessage('Account created successfully!')
+      if (error) {
+        setErrorMessage(error.message)
+      } else {
+        setShowSuccessModal(true)
+      }
     } catch (err) {
       console.error(err)
       setErrorMessage('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoToLogin = async () => {
+    await navigate({ to: '/login' })
   }
 
   return (
@@ -184,14 +197,45 @@ const SignUp = () => {
           </Box>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={showSuccessModal}
+        onClose={handleGoToLogin}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ textAlign: 'center', pt: 4 }}>
+          <Typography variant="h5" fontWeight={500}>
+            Your account successfully created!
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', pb: 2 }}>
+          <Typography variant="body1" color="text.secondary" component='p'>
+            Please check your email and click the confirmation link to verify
+            your account. After confirming your email, you'll be able to log in.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<Login />}
+            onClick={handleGoToLogin}
+            fullWidth
+            sx={{ maxWidth: 300 }}
+          >
+            Go to Login
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <InfoToast
-        isOpen={Boolean(errorMessage || successMessage)}
+        isOpen={Boolean(errorMessage)}
         close={() => {
           setErrorMessage('')
-          setSuccessMessage('')
         }}
-        severity={errorMessage !== '' ? 'error' : 'success'}
-        text={errorMessage || successMessage}
+        severity="error"
+        text={errorMessage}
       />
     </Box>
   )

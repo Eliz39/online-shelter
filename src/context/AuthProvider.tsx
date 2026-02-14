@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabaseClient.ts'
 import { AuthContext } from './AuthContext.tsx'
+import { router } from '../AppRouter.tsx'
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -33,6 +34,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    await router.invalidate()
+    await router.navigate({ to: '/login', replace: true })
   }
 
   return (

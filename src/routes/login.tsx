@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginFormInputs, loginSchema } from '../schemas/loginSchema.ts'
@@ -32,6 +32,7 @@ const LoginPage = () => {
   })
 
   const navigate = useNavigate()
+  const router = useRouter()
 
   const handleLogin = async (data: LoginFormInputs) => {
     try {
@@ -41,16 +42,17 @@ const LoginPage = () => {
       const { error, data: userData } =
         await supabase.auth.signInWithPassword(data)
 
+      if (error) {
+        setErrorMessage(error.message)
+        return
+      }
+
       if (userData) {
+        await router.invalidate()
         await navigate({
           to: '/profile',
           replace: true,
         })
-      }
-
-      if (error) {
-        setErrorMessage(error.message)
-        return
       }
     } catch (err) {
       console.error(err)

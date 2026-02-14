@@ -172,6 +172,7 @@ const PetDetail = () => {
                 src={pet.image_url}
                 alt={`${pet.name} - ${pet.species}`}
                 sx={{
+                  display: 'block',
                   width: '100%',
                   height: { xs: 300, md: 400 },
                   objectFit: 'cover',

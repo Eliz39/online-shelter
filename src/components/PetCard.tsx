@@ -145,7 +145,7 @@ export const PetCard = ({ pet }: PetCardProps) => {
             mb: 2,
             flexGrow: 1,
             display: '-webkit-box',
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
             lineHeight: 1.4,
