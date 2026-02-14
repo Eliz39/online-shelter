@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import {
   Alert,
@@ -17,10 +16,9 @@ import {
 } from '@mui/material'
 import { Email, Favorite, LocationOn, Phone } from '@mui/icons-material'
 import { useAuth } from '../context/useAuth.tsx'
-import type { PetType } from '../types/PetType'
-import { getPetById, PetServiceError } from '../services/petService'
 import { BackButton } from '../components/BackButton.tsx'
 import { AdoptionForm } from '../components/AdoptionForm.tsx'
+import { usePet } from '../hooks/usePets.ts'
 
 const PetDetail = () => {
   const { user } = useAuth()
@@ -28,38 +26,10 @@ const PetDetail = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const [pet, setPet] = useState<PetType | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+
+  const { data: pet, isLoading: loading, error } = usePet(petId)
 
   const isAvailable = pet?.status === 'available'
-
-  useEffect(() => {
-    const loadPet = async () => {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const petData = await getPetById(petId)
-        if (petData) {
-          setPet(petData)
-        } else {
-          setError('Pet not found')
-        }
-      } catch (err) {
-        console.error('Failed to load pet:', err)
-        const errorMessage =
-          err instanceof PetServiceError
-            ? err.message
-            : 'Failed to load pet details'
-        setError(errorMessage)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadPet()
-  }, [petId])
 
   const handleBackClick = () => {
     navigate({ to: '/pets' })
@@ -134,7 +104,7 @@ const PetDetail = () => {
         <BackButton text="Back to Pets" handleBackClick={handleBackClick} />
 
         <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error || 'Pet not found'}
+          {error?.message || 'Pet not found'}
         </Alert>
       </Container>
     )
