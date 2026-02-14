@@ -20,6 +20,7 @@ import { useAuth } from '../context/useAuth.tsx'
 import type { PetType } from '../types/PetType'
 import { getPetById, PetServiceError } from '../services/petService'
 import { BackButton } from '../components/BackButton.tsx'
+import { AdoptionForm } from '../components/AdoptionForm.tsx'
 
 const PetDetail = () => {
   const { user } = useAuth()
@@ -62,11 +63,6 @@ const PetDetail = () => {
 
   const handleBackClick = () => {
     navigate({ to: '/pets' })
-  }
-
-  const handleAdoptClick = () => {
-    // TODO: Implement adoption process
-    alert('Adoption process would start here!')
   }
 
   const getAgeText = (age: number) => {
@@ -324,7 +320,7 @@ const PetDetail = () => {
                 <Button
                   variant="contained"
                   size="large"
-                  onClick={handleAdoptClick}
+                  onClick={() => isAvailable && navigate({ hash: 'adoption-form' })}
                   disabled={!isAvailable}
                   sx={{
                     flex: 1,
@@ -398,6 +394,16 @@ const PetDetail = () => {
               </Box>
             </Box>
           </Paper>
+
+          {isAvailable ? (
+            <Box sx={{ mt: 4 }}>
+              <AdoptionForm
+                petId={pet.id}
+                petName={pet.name}
+                userEmail={user?.email}
+              />
+            </Box>
+          ) : null}
         </Box>
       </Fade>
     </Container>
