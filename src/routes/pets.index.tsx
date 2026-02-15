@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   Container,
@@ -21,45 +21,19 @@ import {
 import { Search, Pets as PetsIcon, FilterList, Refresh } from '@mui/icons-material'
 import { PetCard } from '../components/PetCard'
 import type { PetType } from '../types/PetType'
-import { getAllPets, PetServiceError } from '../services/petService'
+import { usePets } from '../hooks/usePets.ts'
 
 const Pets = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const [pets, setPets] = useState<PetType[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: pets = [], isLoading: loading, error, refetch } = usePets()
   const [searchTerm, setSearchTerm] = useState('')
   const [speciesFilter, setSpeciesFilter] = useState('All')
   const [sizeFilter, setSizeFilter] = useState('All')
   const [ageFilter, setAgeFilter] = useState('All')
-  const [retryCount, setRetryCount] = useState(0)
-
-  useEffect(() => {
-    const loadPets = async () => {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const petsData = await getAllPets()
-        setPets(petsData)
-        setRetryCount(0)
-      } catch (err) {
-        console.error('Failed to load pets:', err)
-        const errorMessage = err instanceof PetServiceError
-          ? err.message
-          : 'Failed to load pets. Please try again.'
-        setError(errorMessage)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadPets()
-  }, [retryCount])
 
   const handleRetry = () => {
-    setRetryCount(prev => prev + 1)
+    refetch()
   }
 
   const filteredPets = pets.filter(pet => {
@@ -134,7 +108,7 @@ const Pets = () => {
         Unable to load pets
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        {error}
+        {error?.message || 'Failed to load pets. Please try again.'}
       </Typography>
       <Button
         variant="contained"

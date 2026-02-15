@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   Alert,
@@ -19,56 +19,41 @@ import { ProfileHeader } from '../components/ProfileHeader'
 import { ProfileEditForm } from '../components/ProfileEditForm'
 import { FavoriteAnimalsSection } from '../components/sections/FavoriteAnimalsSection'
 import type { Animal, ProfileFormData } from '../types/profile'
-import {
-  getFavoriteAnimals,
-  ProfileServiceError,
-  saveFavoriteAnimals,
-  saveUserProfile,
-} from '../services/profileService'
 import { AVAILABLE_ANIMALS, getAnimalsByIds } from '../constants/animals'
+import {
+  useFavoriteAnimals,
+  useSaveProfile,
+  useSaveFavoriteAnimals,
+} from '../hooks/useProfile.ts'
 
 const Profile = () => {
   const { user } = useAuth()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [editFormOpen, setEditFormOpen] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [favoriteAnimals, setFavoriteAnimals] = useState<Animal[]>([])
-  const [loading, setLoading] = useState(true)
-  const [retryCount, setRetryCount] = useState(0)
+
+  const {
+    data: favoriteAnimalIds = [],
+    isLoading: loading,
+    error: loadError,
+    refetch,
+  } = useFavoriteAnimals()
+
+  const saveProfileMutation = useSaveProfile()
+  const saveFavoritesMutation = useSaveFavoriteAnimals()
+
+  const favoriteAnimals = getAnimalsByIds(favoriteAnimalIds)
+  const saveError =
+    saveProfileMutation.error?.message || saveFavoritesMutation.error?.message
 
   const username =
     user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
   const phoneNumber = user?.user_metadata?.phoneNumber || ''
   const userEmail = user?.email || ''
 
-  useEffect(() => {
-    const loadFavoriteAnimals = async () => {
-      if (!user?.id) return
-
-      try {
-        setLoading(true)
-        setSaveError(null)
-        const animalIds = await getFavoriteAnimals()
-        const animals = getAnimalsByIds(animalIds)
-        setFavoriteAnimals(animals)
-        setRetryCount(0)
-      } catch (error) {
-        console.error('Failed to load favorite animals:', error)
-        setSaveError(
-          'Failed to load your favorite animals. Please try refreshing the page.'
-        )
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadFavoriteAnimals()
-  }, [user?.id, retryCount])
-
   const handleRetry = () => {
-    setRetryCount(prev => prev + 1)
+    refetch()
   }
 
   const handleEditProfile = () => {
@@ -77,47 +62,36 @@ const Profile = () => {
 
   const handleCloseEditForm = () => {
     setEditFormOpen(false)
-    setSaveError(null)
+    saveProfileMutation.reset()
   }
 
   const handleSaveProfile = async (data: ProfileFormData) => {
     if (!user?.id) {
-      setSaveError('User not authenticated')
       throw new Error('User not authenticated')
     }
 
     try {
-      await saveUserProfile(data)
+      await saveProfileMutation.mutateAsync(data)
       setSaveSuccess(true)
-      setSaveError(null)
     } catch (error) {
-      const errorMessage =
-        error instanceof ProfileServiceError
-          ? error.message
-          : 'Failed to save profile changes. Please try again.'
-      setSaveError(errorMessage)
       throw error
     }
   }
 
   const handleFavoriteAnimalsChange = async (animals: Animal[]) => {
     if (!user?.id) {
-      setSaveError('User not authenticated')
       return
     }
 
     try {
       const animalId = animals.map(animal => animal.id)[0]
-      await saveFavoriteAnimals(user.id, animalId)
-      setFavoriteAnimals(animals)
+      await saveFavoritesMutation.mutateAsync({
+        userId: user.id,
+        favoriteAnimalId: animalId,
+      })
       setSaveSuccess(true)
-      setSaveError(null)
     } catch (error) {
-      const errorMessage =
-        error instanceof ProfileServiceError
-          ? error.message
-          : 'Failed to save favorite animals. Please try again.'
-      setSaveError(errorMessage)
+      console.error('Failed to save favorite animals:', error)
     }
   }
 
@@ -126,7 +100,8 @@ const Profile = () => {
   }
 
   const handleCloseErrorAlert = () => {
-    setSaveError(null)
+    saveProfileMutation.reset()
+    saveFavoritesMutation.reset()
   }
 
   const LoadingSkeleton = () => (
@@ -175,7 +150,7 @@ const Profile = () => {
           Unable to load profile
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          {saveError}
+          {loadError?.message || 'Failed to load your favorite animals'}
         </Typography>
         <Button
           variant="contained"
@@ -192,7 +167,7 @@ const Profile = () => {
     return <LoadingSkeleton />
   }
 
-  if (saveError && favoriteAnimals.length === 0) {
+  if (loadError && favoriteAnimals.length === 0) {
     return <ErrorState />
   }
 
