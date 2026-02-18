@@ -105,45 +105,72 @@ export const saveUserProfile = async (profileData: ProfileFormData) => {
 }
 
 /**
- * Update user's favorite animals
+ * Add animal to user's favorites
  * @param userId - The user's ID from auth
- * @param favoriteAnimalIds - Array of animal IDs
- * @returns Promise<string[]>
+ * @param animalId - Animal ID to add
+ * @returns Promise<void>
  */
-export const saveFavoriteAnimals = async (
+export const addFavoriteAnimal = async (
   userId: string,
-  favoriteAnimalId: string
-): Promise<string[]> => {
+  animalId: string
+): Promise<void> => {
   try {
-    const now = new Date().toISOString()
-
-    const { data, error } = await supabase.from('favorite_animals').upsert(
-      {
-        id: favoriteAnimalId,
-        user_id: userId,
-        updated_at: now,
-      },
-      {
-        onConflict: 'id',
-        ignoreDuplicates: false,
-      }
-    )
+    const { error } = await supabase.from('favorite_animals').insert({
+      user_id: userId,
+      animal_id: animalId,
+    })
 
     if (error) {
-      throw new ProfileServiceError(
-        'Failed to save favorite animals',
-        error.code,
-        error
-      )
+      if (error.code !== '23505') {
+        throw new ProfileServiceError(
+          'Failed to add favorite animal',
+          error.code,
+          error
+        )
+      }
     }
-
-    return data || []
   } catch (error) {
     if (error instanceof ProfileServiceError) {
       throw error
     }
     throw new ProfileServiceError(
-      'Unexpected error while saving favorite animals',
+      'Unexpected error while adding favorite animal',
+      'UNKNOWN_ERROR',
+      error
+    )
+  }
+}
+
+/**
+ * Remove animal from user's favorites
+ * @param userId - The user's ID from auth
+ * @param animalId - Animal ID to remove
+ * @returns Promise<void>
+ */
+export const removeFavoriteAnimal = async (
+  userId: string,
+  animalId: string
+): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('favorite_animals')
+      .delete()
+      .eq('user_id', userId)
+      .eq('animal_id', animalId)
+
+    if (error) {
+      throw new ProfileServiceError(
+        'Failed to remove favorite animal',
+        error.code,
+        error
+      )
+    }
+  } catch (error) {
+    if (error instanceof ProfileServiceError) {
+      throw error
+    }
+    throw new ProfileServiceError(
+      'Unexpected error while removing favorite animal',
       'UNKNOWN_ERROR',
       error
     )
@@ -155,11 +182,12 @@ export const saveFavoriteAnimals = async (
  * @param userId - The user's ID from auth
  * @returns Promise<string[]>
  */
-export const getFavoriteAnimals = async (): Promise<string[]> => {
+export const getFavoriteAnimals = async (userId: string): Promise<string[]> => {
   try {
     const { data, error } = await supabase
       .from('favorite_animals')
-      .select<string>('id')
+      .select('animal_id')
+      .eq('user_id', userId)
 
     if (error) {
       if (error.code === 'PGRST116') {
@@ -171,7 +199,7 @@ export const getFavoriteAnimals = async (): Promise<string[]> => {
         error
       )
     }
-    return data || []
+    return data?.map(item => item.animal_id) || []
   } catch (error) {
     if (error instanceof ProfileServiceError) {
       throw error

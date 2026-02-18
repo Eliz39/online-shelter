@@ -196,3 +196,47 @@ export const getAvailablePets = async (limit: number = 10): Promise<PetType[]> =
     )
   }
 }
+
+/**
+ * Get multiple pets by their IDs
+ * @param petIds - Array of pet IDs to fetch
+ * @returns Promise<PetType[]>
+ */
+export const getPetsByIds = async (petIds: string[]): Promise<PetType[]> => {
+  try {
+    if (!petIds || petIds.length === 0) {
+      return []
+    }
+
+    const { data, error } = await supabase
+      .from('animals')
+      .select('*')
+      .in('id', petIds)
+
+    if (error) {
+      console.error('Supabase error fetching pets by IDs:', error)
+      throw new PetServiceError(
+        'Failed to fetch pets by IDs from database',
+        error.code || 'FETCH_ERROR',
+        error
+      )
+    }
+
+    if (!data) {
+      return []
+    }
+
+    const petMap = new Map(data.map(pet => [pet.id, pet]))
+    return petIds.map(id => petMap.get(id)).filter((pet): pet is PetType => pet !== undefined)
+  } catch (error) {
+    if (error instanceof PetServiceError) {
+      throw error
+    }
+    console.error('Unexpected error fetching pets by IDs:', error)
+    throw new PetServiceError(
+      'Unexpected error while fetching pets by IDs',
+      'UNKNOWN_ERROR',
+      error
+    )
+  }
+}

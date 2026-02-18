@@ -8,17 +8,19 @@ import {
   Chip,
   Container,
   Fade,
+  IconButton,
   Paper,
   Skeleton,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { Email, Favorite, LocationOn, Phone } from '@mui/icons-material'
+import { Email, Favorite, FavoriteBorder, LocationOn, Phone } from '@mui/icons-material'
 import { useAuth } from '../context/useAuth.tsx'
 import { BackButton } from '../components/BackButton.tsx'
 import { AdoptionForm } from '../components/AdoptionForm.tsx'
 import { usePet } from '../hooks/usePets.ts'
+import { useFavoriteAnimals } from '../hooks/useFavoriteAnimals.ts'
 
 const PetDetail = () => {
   const { user } = useAuth()
@@ -28,8 +30,28 @@ const PetDetail = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const { data: pet, isLoading: loading, error } = usePet(petId)
+  const {
+    isFavorite,
+    toggleFavoriteAnimal,
+    isLoading: favoriteLoading,
+  } = useFavoriteAnimals()
 
   const isAvailable = pet?.status === 'available'
+  const isPetFavorite = pet ? isFavorite(pet.id) : false
+
+  const handleFavoriteClick = async () => {
+    if (!pet || !user) return
+
+    try {
+      const animal = {
+        id: pet.id,
+        name: pet.name,
+      }
+      await toggleFavoriteAnimal(animal)
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error)
+    }
+  }
 
   const handleBackClick = () => {
     navigate({ to: '/pets' })
@@ -154,21 +176,23 @@ const PetDetail = () => {
                 }}
               >
                 {user ? (
-                  <Button
-                    variant="contained"
-                    size="small"
+                  <IconButton
+                    onClick={handleFavoriteClick}
+                    disabled={favoriteLoading}
                     sx={{
-                      minWidth: 'auto',
-                      p: 1,
                       bgcolor: 'rgba(255, 255, 255, 0.9)',
-                      color: 'text.primary',
+                      color: isPetFavorite ? 'error.main' : 'text.secondary',
                       '&:hover': {
                         bgcolor: 'rgba(255, 255, 255, 1)',
+                        color: isPetFavorite ? 'error.dark' : 'error.main',
+                      },
+                      '&:disabled': {
+                        bgcolor: 'rgba(255, 255, 255, 0.7)',
                       },
                     }}
                   >
-                    <Favorite />
-                  </Button>
+                    {isPetFavorite ? <Favorite /> : <FavoriteBorder />}
+                  </IconButton>
                 ) : null}
               </Box>
             </Paper>
