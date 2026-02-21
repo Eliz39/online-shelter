@@ -7,24 +7,17 @@ import {
   Container,
   Fade,
   Paper,
-  Skeleton,
   Snackbar,
-  Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { Edit, Refresh } from '@mui/icons-material'
+import { Edit } from '@mui/icons-material'
 import { useAuth } from '../context/useAuth.tsx'
 import { ProfileHeader } from '../components/ProfileHeader'
 import { ProfileEditForm } from '../components/ProfileEditForm'
 import { FavoriteAnimalsSection } from '../components/sections/FavoriteAnimalsSection'
-import type { Animal, ProfileFormData } from '../types/profile'
-import { AVAILABLE_ANIMALS, getAnimalsByIds } from '../constants/animals'
-import {
-  useFavoriteAnimals,
-  useSaveProfile,
-  useSaveFavoriteAnimals,
-} from '../hooks/useProfile.ts'
+import type { ProfileFormData } from '../types/profile'
+import { useSaveProfile } from '../hooks/useProfile.ts'
 
 const Profile = () => {
   const { user } = useAuth()
@@ -33,28 +26,12 @@ const Profile = () => {
   const [editFormOpen, setEditFormOpen] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
-  const {
-    data: favoriteAnimalIds = [],
-    isLoading: loading,
-    error: loadError,
-    refetch,
-  } = useFavoriteAnimals()
-
   const saveProfileMutation = useSaveProfile()
-  const saveFavoritesMutation = useSaveFavoriteAnimals()
-
-  const favoriteAnimals = getAnimalsByIds(favoriteAnimalIds)
-  const saveError =
-    saveProfileMutation.error?.message || saveFavoritesMutation.error?.message
 
   const username =
     user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
   const phoneNumber = user?.user_metadata?.phoneNumber || ''
   const userEmail = user?.email || ''
-
-  const handleRetry = () => {
-    refetch()
-  }
 
   const handleEditProfile = () => {
     setEditFormOpen(true)
@@ -78,97 +55,12 @@ const Profile = () => {
     }
   }
 
-  const handleFavoriteAnimalsChange = async (animals: Animal[]) => {
-    if (!user?.id) {
-      return
-    }
-
-    try {
-      const animalId = animals.map(animal => animal.id)[0]
-      await saveFavoritesMutation.mutateAsync({
-        userId: user.id,
-        favoriteAnimalId: animalId,
-      })
-      setSaveSuccess(true)
-    } catch (error) {
-      console.error('Failed to save favorite animals:', error)
-    }
-  }
-
   const handleCloseSuccessAlert = () => {
     setSaveSuccess(false)
   }
 
   const handleCloseErrorAlert = () => {
     saveProfileMutation.reset()
-    saveFavoritesMutation.reset()
-  }
-
-  const LoadingSkeleton = () => (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'flex-start',
-          mb: 3,
-          gap: isMobile ? 2 : 0,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Skeleton variant="circular" width={64} height={64} />
-          <Skeleton variant="text" width={200} height={40} />
-        </Box>
-        <Skeleton
-          variant="rectangular"
-          width={140}
-          height={40}
-          sx={{ borderRadius: 1 }}
-        />
-      </Box>
-      <Skeleton
-        variant="rectangular"
-        width="100%"
-        height={300}
-        sx={{ borderRadius: 2 }}
-      />
-    </Container>
-  )
-
-  const ErrorState = () => (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper
-        elevation={2}
-        sx={{
-          p: 4,
-          textAlign: 'center',
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h6" color="error" gutterBottom>
-          Unable to load profile
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          {loadError?.message || 'Failed to load your favorite animals'}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Refresh />}
-          onClick={handleRetry}
-        >
-          Try Again
-        </Button>
-      </Paper>
-    </Container>
-  )
-
-  if (loading) {
-    return <LoadingSkeleton />
-  }
-
-  if (loadError && favoriteAnimals.length === 0) {
-    return <ErrorState />
   }
 
   return (
@@ -212,11 +104,7 @@ const Profile = () => {
 
           <Fade in timeout={700}>
             <Box sx={{ mb: 4 }}>
-              <FavoriteAnimalsSection
-                selectedAnimals={favoriteAnimals}
-                availableAnimals={AVAILABLE_ANIMALS}
-                onSelectionChange={handleFavoriteAnimalsChange}
-              />
+              <FavoriteAnimalsSection />
             </Box>
           </Fade>
 
@@ -254,7 +142,7 @@ const Profile = () => {
           </Snackbar>
 
           <Snackbar
-            open={!!saveError}
+            open={!!saveProfileMutation.error}
             autoHideDuration={6000}
             onClose={handleCloseErrorAlert}
             anchorOrigin={{
@@ -274,14 +162,14 @@ const Profile = () => {
                 <Button
                   color="inherit"
                   size="small"
-                  onClick={handleRetry}
+                  onClick={handleCloseErrorAlert}
                   sx={{ ml: 1 }}
                 >
-                  Retry
+                  Understand
                 </Button>
               }
             >
-              {saveError}
+              {saveProfileMutation.error?.message || 'Failed to save profile'}
             </Alert>
           </Snackbar>
         </Box>

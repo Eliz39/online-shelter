@@ -3,7 +3,7 @@ import {
     getUserProfile,
     saveUserProfile,
     getFavoriteAnimals,
-    saveFavoriteAnimals,
+    addFavoriteAnimal,
 } from '../services/profileService'
 import type { ProfileFormData } from '../types/profile'
 
@@ -15,10 +15,11 @@ export const useUserProfile = (userId: string | undefined) => {
     })
 }
 
-export const useFavoriteAnimals = () => {
+export const useFavoriteAnimals = (userId: string | undefined) => {
     return useQuery({
-        queryKey: ['favoriteAnimals'],
-        queryFn: getFavoriteAnimals,
+        queryKey: ['favoriteAnimals', userId],
+        queryFn: () => getFavoriteAnimals(userId!),
+        enabled: !!userId,
     })
 }
 
@@ -43,7 +44,7 @@ export const useSaveFavoriteAnimals = () => {
         }: {
             userId: string
             favoriteAnimalId: string
-        }) => saveFavoriteAnimals(userId, favoriteAnimalId),
+        }) => addFavoriteAnimal(userId, favoriteAnimalId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['favoriteAnimals'] })
         },

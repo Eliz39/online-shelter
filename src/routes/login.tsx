@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type LoginFormInputs, loginSchema } from '../schemas/loginSchema.ts'
@@ -144,7 +144,8 @@ const LoginPage = () => {
             >
               Don't have an account?{' '}
               <MuiLink
-                href="/signup"
+                component={Link}
+                to="/signup"
                 underline="hover"
                 sx={{ color: 'primary.main', fontWeight: 600 }}
               >

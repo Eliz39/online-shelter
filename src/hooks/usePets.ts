@@ -4,6 +4,7 @@ import {
     getPetById,
     getFilteredPets,
     getAvailablePets,
+    getPetsByIds,
 } from '../services/petService'
 
 export const usePets = () => {
@@ -37,5 +38,14 @@ export const useAvailablePets = (limit: number = 10) => {
     return useQuery({
         queryKey: ['pets', 'available', limit],
         queryFn: () => getAvailablePets(limit),
+    })
+}
+
+export const usePetsByIds = (petIds: string[]) => {
+    return useQuery({
+        queryKey: ['pets', 'byIds', petIds],
+        queryFn: () => getPetsByIds(petIds),
+        enabled: petIds.length > 0,
+        staleTime: 5 * 60 * 1000, // 5 minutes
     })
 }

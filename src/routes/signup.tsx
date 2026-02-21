@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type SignupFormInputs, signupSchema } from '../schemas/signupSchema.ts'
@@ -187,7 +187,8 @@ const SignUp = () => {
             >
               Already have an account?{' '}
               <MuiLink
-                href="/login"
+                component={Link}
+                to="/login"
                 underline="hover"
                 sx={{ color: 'primary.main', fontWeight: 600 }}
               >
