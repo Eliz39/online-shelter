@@ -1,10 +1,12 @@
 import { supabase } from '../lib/supabaseClient'
 import type { ShelterType } from '../types/ShelterType'
 
-export const getShelterById = async (shelterId: string): Promise<ShelterType | null> => {
+export const getShelterById = async (
+    shelterId: string
+): Promise<ShelterType | null> => {
     const { data, error } = await supabase
         .from('shelters')
-        .select('id, name, email, phone, address, city, state, zip_code, description, logo_url, created_at, updated_at')
+        .select('*')
         .eq('id', shelterId)
         .single()
 
@@ -19,7 +21,7 @@ export const getShelterById = async (shelterId: string): Promise<ShelterType | n
 export const getAllShelters = async (): Promise<ShelterType[]> => {
     const { data, error } = await supabase
         .from('shelters')
-        .select('id, name, email, phone, address, city, state, zip_code, description, logo_url, created_at, updated_at')
+        .select('*')
         .order('name')
 
     if (error) {
@@ -28,4 +30,28 @@ export const getAllShelters = async (): Promise<ShelterType[]> => {
     }
 
     return data || []
+}
+
+export const createShelter = async (shelterData: {
+    name: string
+    email: string
+    phone: string
+    address: string
+    city: string
+    state: string
+    zip_code: string
+    description?: string
+}): Promise<ShelterType> => {
+    const { data, error } = await supabase
+        .from('shelters')
+        .insert([shelterData])
+        .select()
+        .single()
+
+    if (error) {
+        console.error('Error creating shelter:', error)
+        throw error
+    }
+
+    return data
 }
