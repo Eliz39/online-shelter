@@ -55,7 +55,18 @@ export const getPetById = async (petId: string): Promise<PetType | null> => {
   try {
     const { data, error } = await supabase
       .from('animals')
-      .select('*')
+      .select(`
+      *,
+      shelters (
+        id,
+        name,
+        city,
+        state,
+        phone,
+        email,
+        logo_url
+      )
+    `)
       .eq('id', petId)
       .single()
 
