@@ -399,6 +399,7 @@ const PetDetail = () => {
               <AdoptionForm
                 petId={pet.id}
                 petName={pet.name}
+                shelterId={pet.shelter_id}
                 userEmail={user?.email}
               />
             </Box>
