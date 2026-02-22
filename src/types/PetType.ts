@@ -9,4 +9,5 @@ export type PetType = {
   size: string
   status: string
   color: string
+  shelter_id: string | null
 }

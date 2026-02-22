@@ -21,6 +21,7 @@ import { BackButton } from '../components/BackButton.tsx'
 import { AdoptionForm } from '../components/AdoptionForm.tsx'
 import { usePet } from '../hooks/usePets.ts'
 import { useFavoriteAnimals } from '../hooks/useFavoriteAnimals.ts'
+import { useShelter } from '../hooks/useShelters.ts'
 
 const PetDetail = () => {
   const { user } = useAuth()
@@ -30,6 +31,7 @@ const PetDetail = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const { data: pet, isLoading: loading, error } = usePet(petId)
+  const { data: shelter } = useShelter(pet?.shelter_id)
   const {
     isFavorite,
     toggleFavoriteAnimal,
@@ -330,7 +332,7 @@ const PetDetail = () => {
             </Box>
           </Box>
 
-          <Paper
+          {shelter && <Paper
             elevation={2}
             sx={{
               mt: 4,
@@ -360,7 +362,10 @@ const PetDetail = () => {
                     Location
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    Animal Shelter
+                    <strong>{shelter.name}</strong>
+                  </Typography>
+                  <Typography variant="body2">
+                    {shelter.address}, {shelter.city}, {shelter.zip_code}
                   </Typography>
                 </Box>
               </Box>
@@ -371,7 +376,7 @@ const PetDetail = () => {
                     Phone
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    (555) 123-4567
+                    {shelter.phone}
                   </Typography>
                 </Box>
               </Box>
@@ -382,12 +387,12 @@ const PetDetail = () => {
                     Email
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    adopt@shelter.com
+                    {shelter.email}
                   </Typography>
                 </Box>
               </Box>
             </Box>
-          </Paper>
+          </Paper>}
 
           {isAvailable ? (
             <Box sx={{ mt: 4 }}>

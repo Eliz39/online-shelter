@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type SignupFormInputs, signupSchema } from '../schemas/signupSchema.ts'
 import { supabase } from '../lib/supabaseClient.ts'
+import { createShelter } from '../services/shelterService.ts'
 import {
   Box,
   Button,
@@ -30,6 +31,7 @@ const SignUp = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<SignupFormInputs>({
     defaultValues: {
@@ -41,12 +43,14 @@ const SignUp = () => {
     resolver: zodResolver(signupSchema),
   })
 
+  const selectedRole = watch('role')
+
   const handleSignup = async (data: SignupFormInputs) => {
     try {
       setErrorMessage('')
       setLoading(true)
 
-      const { error } = await supabase.auth.signUp({
+      const { error: authError, data: userData } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -54,11 +58,33 @@ const SignUp = () => {
         },
       })
 
-      if (error) {
-        setErrorMessage(error.message)
-      } else {
-        setShowSuccessModal(true)
+      if (authError) {
+        setErrorMessage(authError.message)
+        return
       }
+
+      if (data.role === 'shelter' && userData.user) {
+        try {
+          await createShelter({
+            name: data.shelterName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            zip_code: data.zipCode,
+            description: data.description,
+          })
+        } catch (shelterError) {
+          console.error('Error creating shelter:', shelterError)
+          setErrorMessage(
+            'Account created but shelter setup failed. Please contact support.'
+          )
+          return
+        }
+      }
+
+      setShowSuccessModal(true)
     } catch (err) {
       console.error(err)
       setErrorMessage('Something went wrong. Please try again.')
@@ -80,7 +106,7 @@ const SignUp = () => {
         py: 4,
       }}
     >
-      <Card sx={{ boxShadow: 4 }}>
+      <Card sx={{ boxShadow: 4, maxWidth: 600, width: '100%' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           <Typography
             variant="h4"
@@ -167,6 +193,122 @@ const SignUp = () => {
                 />
               )}
             />
+
+            {selectedRole === 'shelter' && (
+              <>
+                <Controller
+                  name="shelterName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Shelter Name"
+                      fullWidth
+                      variant="outlined"
+                      error={!!(errors as any).shelterName}
+                      helperText={(errors as any).shelterName?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Phone Number"
+                      fullWidth
+                      variant="outlined"
+                      placeholder="+420 XXX XXX XXX"
+                      error={!!(errors as any).phone}
+                      helperText={(errors as any).phone?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="address"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Address"
+                      fullWidth
+                      variant="outlined"
+                      error={!!(errors as any).address}
+                      helperText={(errors as any).address?.message}
+                    />
+                  )}
+                />
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Controller
+                    name="city"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="City"
+                        fullWidth
+                        variant="outlined"
+                        error={!!(errors as any).city}
+                        helperText={(errors as any).city?.message}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    name="zipCode"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Zip Code"
+                        fullWidth
+                        variant="outlined"
+                        error={!!(errors as any).zipCode}
+                        helperText={(errors as any).zipCode?.message}
+                      />
+                    )}
+                  />
+                </Box>
+
+                <Controller
+                  name="state"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="State/Region"
+                      fullWidth
+                      variant="outlined"
+                      placeholder="e.g., Praha, Jihomoravský kraj"
+                      error={!!(errors as any).state}
+                      helperText={(errors as any).state?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Description (Optional)"
+                      fullWidth
+                      multiline
+                      rows={3}
+                      variant="outlined"
+                      placeholder="Tell us about your shelter..."
+                      error={!!(errors as any).description}
+                      helperText={(errors as any).description?.message}
+                    />
+                  )}
+                />
+              </>
+            )}
 
             <Button
               type="submit"
