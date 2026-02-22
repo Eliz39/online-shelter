@@ -20,12 +20,14 @@ import { supabase } from '../lib/supabaseClient'
 type AdoptionFormProps = {
     petId: string
     petName: string
+    shelterId: string | null
     userEmail?: string
 }
 
 export const AdoptionForm = ({
     petId,
     petName,
+    shelterId,
     userEmail = '',
 }: AdoptionFormProps) => {
     const [loading, setLoading] = useState(false)
@@ -66,6 +68,7 @@ export const AdoptionForm = ({
                         address: data.address,
                         pet_id: data.petId,
                         pet_name: data.petName,
+                        shelter_id: shelterId,
                         message: data.message || null,
                         status: 'pending',
                     },

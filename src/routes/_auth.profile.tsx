@@ -5,9 +5,11 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Fade,
   Paper,
   Snackbar,
+  Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
@@ -16,8 +18,15 @@ import { useAuth } from '../context/useAuth.tsx'
 import { ProfileHeader } from '../components/ProfileHeader'
 import { ProfileEditForm } from '../components/ProfileEditForm'
 import { FavoriteAnimalsSection } from '../components/sections/FavoriteAnimalsSection'
+import { AdoptionRequestsSection } from '../components/sections/AdoptionRequestsSection'
 import type { ProfileFormData } from '../types/profile'
 import { useSaveProfile } from '../hooks/useProfile.ts'
+import {
+  useAdoptionRequestsByEmail,
+  useAdoptionRequestsByShelterId,
+} from '../hooks/useAdoptionRequests'
+import { supabase } from '../lib/supabaseClient'
+import { useQuery } from '@tanstack/react-query'
 
 const Profile = () => {
   const { user } = useAuth()
@@ -32,6 +41,37 @@ const Profile = () => {
     user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
   const phoneNumber = user?.user_metadata?.phoneNumber || ''
   const userEmail = user?.email || ''
+  const userRole = user?.user_metadata?.role as 'adopter' | 'shelter' | undefined
+
+  // Get shelter ID if user is a shelter
+  const { data: shelter } = useQuery({
+    queryKey: ['shelter', 'byEmail', userEmail],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('shelters')
+        .select('id')
+        .eq('email', userEmail)
+        .single()
+
+      if (error) throw error
+      return data
+    },
+    enabled: userRole === 'shelter' && !!userEmail,
+  })
+
+  // Fetch adoption requests based on role
+  const { data: adopterRequests, isLoading: adopterRequestsLoading } =
+    useAdoptionRequestsByEmail(userRole === 'adopter' ? userEmail : undefined)
+
+  const { data: shelterRequests, isLoading: shelterRequestsLoading } =
+    useAdoptionRequestsByShelterId(
+      userRole === 'shelter' ? shelter?.id : undefined
+    )
+
+  const adoptionRequests =
+    userRole === 'adopter' ? adopterRequests : shelterRequests
+  const adoptionRequestsLoading =
+    userRole === 'adopter' ? adopterRequestsLoading : shelterRequestsLoading
 
   const handleEditProfile = () => {
     setEditFormOpen(true)
@@ -102,9 +142,44 @@ const Profile = () => {
             </Box>
           </Paper>
 
-          <Fade in timeout={700}>
-            <Box sx={{ mb: 4 }}>
-              <FavoriteAnimalsSection />
+          {userRole === 'adopter' && (
+            <Fade in timeout={700}>
+              <Box sx={{ mb: 4 }}>
+                <FavoriteAnimalsSection />
+              </Box>
+            </Fade>
+          )}
+
+          <Fade in timeout={900}>
+            <Box>
+              <Paper
+                elevation={1}
+                sx={{
+                  p: { xs: 2, md: 3 },
+                  borderRadius: 2,
+                  background: `linear-gradient(135deg, ${theme.palette.secondary.light}10, ${theme.palette.background.paper})`,
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  fontWeight={600}
+                  gutterBottom
+                  sx={{ mb: 3 }}
+                >
+                  Adoption Requests
+                </Typography>
+                <Divider sx={{ mb: 3 }} />
+                {adoptionRequestsLoading ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography color="text.secondary">Loading...</Typography>
+                  </Box>
+                ) : (
+                  <AdoptionRequestsSection
+                    requests={adoptionRequests || []}
+                    userRole={userRole || 'adopter'}
+                  />
+                )}
+              </Paper>
             </Box>
           </Fade>
 
