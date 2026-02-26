@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Controller, useForm, type FieldError } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
     Box,
@@ -8,7 +8,6 @@ import {
     Typography,
     Paper,
     MenuItem,
-    Alert,
     RadioGroup,
     FormControlLabel,
     Radio,
@@ -23,14 +22,16 @@ import {
     addAnimalSchema,
 } from '../../schemas/addAnimalSchema'
 import { useCreateAnimal } from '../../hooks/useAnimals'
+import { InfoToast } from '../InfoToast'
 
 type AddAnimalSectionProps = {
     shelterId: string
 }
 
 export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
-    const [success, setSuccess] = useState(false)
-    const { mutate: createAnimal, isPending, error } = useCreateAnimal()
+    const [successMessage, setSuccessMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('')
+    const { mutate: createAnimal, isPending } = useCreateAnimal()
 
     const {
         control,
@@ -57,7 +58,6 @@ export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
     const imageUploadType = watch('imageUploadType')
 
     const onSubmit = (data: AddAnimalFormInputs) => {
-
         createAnimal(
             {
                 animalData: {
@@ -75,12 +75,12 @@ export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
             },
             {
                 onSuccess: () => {
-                    setSuccess(true)
+                    setSuccessMessage('Animal added successfully!')
                     reset()
-                    setTimeout(() => setSuccess(false), 5000)
                 },
                 onError: (error) => {
                     console.error('Error creating animal:', error)
+                    setErrorMessage(error.message || 'Failed to add animal. Please try again.')
                 },
             }
         )
@@ -98,18 +98,6 @@ export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
                 Add New Animal
             </Typography>
             <Divider sx={{ mb: 3 }} />
-
-            {success && (
-                <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-                    Animal added successfully!
-                </Alert>
-            )}
-
-            {error && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                    {error.message || 'Failed to add animal. Please try again.'}
-                </Alert>
-            )}
 
             <Box
                 component="form"
@@ -343,7 +331,7 @@ export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
                     )}
 
                     {errors.imageFile && (
-                        <FormHelperText>{(errors.imageFile as FieldError).message}</FormHelperText>
+                        <FormHelperText>{String(errors.imageFile.message || 'Please provide an image')}</FormHelperText>
                     )}
                 </FormControl>
 
@@ -360,6 +348,20 @@ export const AddAnimalSection = ({ shelterId }: AddAnimalSectionProps) => {
                     </Button>
                 </Box>
             </Box>
+
+            <InfoToast
+                isOpen={Boolean(successMessage)}
+                close={() => setSuccessMessage('')}
+                severity="success"
+                text={successMessage}
+            />
+
+            <InfoToast
+                isOpen={Boolean(errorMessage)}
+                close={() => setErrorMessage('')}
+                severity="error"
+                text={errorMessage}
+            />
         </Paper>
     )
 }
