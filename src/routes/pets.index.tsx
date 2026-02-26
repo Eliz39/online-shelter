@@ -41,8 +41,10 @@ const Pets = () => {
       pet.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.color.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesSpecies = speciesFilter === 'All' || pet.species === speciesFilter
-    const matchesSize = sizeFilter === 'All' || pet.size === sizeFilter
+    const matchesSpecies = speciesFilter === 'All' ||
+      pet.species.toLowerCase() === speciesFilter.toLowerCase()
+    const matchesSize = sizeFilter === 'All' ||
+      pet.size.toLowerCase() === sizeFilter.toLowerCase()
     const matchesAge = ageFilter === 'All' ||
       (ageFilter === 'Young' && pet.age <= 2) ||
       (ageFilter === 'Adult' && pet.age > 2 && pet.age <= 7) ||
@@ -52,7 +54,15 @@ const Pets = () => {
   })
 
   const getUniqueValues = (key: keyof PetType) => {
-    return Array.from(new Set(pets.map(pet => pet[key] as string)))
+    const values = pets.map(pet => {
+      const value = pet[key] as string
+      return value.toLowerCase()
+    })
+    const uniqueValues = Array.from(new Set(values))
+    // Return with proper capitalization (first letter uppercase)
+    return uniqueValues.map(value =>
+      value.charAt(0).toUpperCase() + value.slice(1)
+    )
   }
 
   const LoadingSkeleton = () => (
