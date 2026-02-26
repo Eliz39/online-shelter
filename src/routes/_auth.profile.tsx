@@ -19,6 +19,7 @@ import { ProfileHeader } from '../components/ProfileHeader'
 import { ProfileEditForm } from '../components/ProfileEditForm'
 import { FavoriteAnimalsSection } from '../components/sections/FavoriteAnimalsSection'
 import { AdoptionRequestsSection } from '../components/sections/AdoptionRequestsSection'
+import { AddAnimalSection } from '../components/sections/AddAnimalSection'
 import type { ProfileFormData } from '../types/profile'
 import { useSaveProfile } from '../hooks/useProfile.ts'
 import {
@@ -151,7 +152,7 @@ const Profile = () => {
           )}
 
           <Fade in timeout={900}>
-            <Box>
+            <Box sx={{ mb: 4 }}>
               <Paper
                 elevation={1}
                 sx={{
@@ -182,6 +183,14 @@ const Profile = () => {
               </Paper>
             </Box>
           </Fade>
+
+          {userRole === 'shelter' && shelter?.id && (
+            <Fade in timeout={1100}>
+              <Box sx={{ mb: 4 }}>
+                <AddAnimalSection shelterId={shelter.id} />
+              </Box>
+            </Fade>
+          )}
 
           <ProfileEditForm
             open={editFormOpen}

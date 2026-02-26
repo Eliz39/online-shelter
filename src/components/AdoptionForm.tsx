@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import {
     Box,
     Button,
@@ -34,6 +35,7 @@ export const AdoptionForm = ({
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
     const theme = useTheme()
+    const queryClient = useQueryClient()
 
     const {
         control,
@@ -86,6 +88,10 @@ export const AdoptionForm = ({
             if (updateError) {
                 console.error('Failed to update pet status:', updateError)
             }
+
+            queryClient.invalidateQueries({ queryKey: ['adoptionRequests'] })
+            // Due to status change
+            queryClient.invalidateQueries({ queryKey: ['pets'] })
 
             setSuccess(true)
             reset()
